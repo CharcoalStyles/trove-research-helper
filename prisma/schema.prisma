@@ -9,3 +9,35 @@ datasource db {
   provider = "sqlite"
   url      = "file:./dev.db"
 }
+
+model Project {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String
+  items       TroveItem[]
+}
+
+model TroveItem {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  url         String
+  addedDate   DateTime
+  project     Project  @relation(fields: [projectId], references: [id])
+  projectId   Int
+  notes       Note[]
+}
+
+model Note {
+  id          Int       @id @default(autoincrement())
+  content     String
+  addedDate   DateTime
+  troveItem   TroveItem @relation(fields: [troveItemId], references: [id])
+  troveItemId Int
+}
+
+model RecentSearches {
+  id        Int      @id @default(autoincrement())
+  search    String
+  addedDate DateTime
+}
