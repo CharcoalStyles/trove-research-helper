@@ -1,27 +1,17 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient, Project } from "@prisma/client";
-import { ErrorResponse } from "../../hello";
-
-type GetResponseData = {
-  project: Project;
-};
-
-export const getProjectId = (req: Pick<NextApiRequest, "query">): number => {
-  const { projectId } = req.query;
-
-  return projectId ? parseInt(projectId as string) : -1;
-};
+import { ErrorResponse, getProjectId, ItemResponseData } from "@src/apiHelpers";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<GetResponseData | ErrorResponse>
+  res: NextApiResponse<ItemResponseData<Project> | ErrorResponse>
 ) {
   const projectId = getProjectId(req);
 
-  if (projectId === -1) {
+  if (!projectId) {
     res.status(400).json({
-      error: "projectId must be a single value",
+      error: "projectId is required",
     });
     return;
   }
@@ -41,7 +31,33 @@ export default async function handler(
         });
         return;
       }
-      res.json({ project });
+      res.json({ item: project });
+      break;
+    case "PATCH":
+      const { name } = req.body;
+      if (!name) {
+        res.status(400).json({
+          error: "name is required",
+        });
+        return;
+      }
+      const updatedProject = await prisma.project.update({
+        where: {
+          id: projectId,
+        },
+        data: {
+          name,
+        },
+      });
+      res.json({ item: updatedProject });
+      break;
+    case "DELETE":
+      const deletedProject = await prisma.project.delete({
+        where: {
+          id: projectId,
+        },
+      });
+      res.json({ item: deletedProject });
       break;
     default:
       res.status(405).end(`Method ${req.method} Not Allowed`);

@@ -1,9 +1,10 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-import { PrismaClient, TroveItem } from "@prisma/client";
+import { PrismaClient, Note } from "@prisma/client";
 import {
   ErrorResponse,
   getProjectId,
+  getTroveItemId,
   ItemResponseData,
   ListResponseData,
 } from "@src/apiHelpers";
@@ -11,10 +12,11 @@ import {
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<
-    ListResponseData<TroveItem> | ItemResponseData<TroveItem> | ErrorResponse
+    ListResponseData<Note> | ItemResponseData<Note> | ErrorResponse
   >
 ) {
   const projectId = getProjectId(req);
+  const troveItemId = getTroveItemId(req);
 
   if (!projectId) {
     res.status(400).json({
@@ -23,34 +25,39 @@ export default async function handler(
     return;
   }
 
+  if (!troveItemId) {
+    res.status(400).json({
+      error: "Trove Item Id is required",
+    });
+    return;
+  }
+
   const prisma = new PrismaClient();
 
   switch (req.method) {
     case "GET":
-      const items = await prisma.troveItem.findMany({
+      const items = await prisma.note.findMany({
         where: {
-          projectId,
+          troveItemId,
         },
       });
       res.json({ items });
       break;
     case "POST":
-      const { name, description, url } = req.body;
+      const { content } = req.body;
 
-      if (!name || !description || !url) {
+      if (!content) {
         res.status(400).json({
-          error: "name, description, and url are required",
+          error: "content is required",
         });
         return;
       }
 
-      const item = await prisma.troveItem.create({
+      const item = await prisma.note.create({
         data: {
-          name,
-          description,
-          url,
+          content,
+          troveItemId,
           addedDate: new Date(),
-          projectId: projectId,
         },
       });
       res.status(201).json({ item });
