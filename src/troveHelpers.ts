@@ -3,23 +3,21 @@ export type TroveZone =
   | "book"
   | "picture"
   | "music"
-  | "map"
-  | "newspaper"
-  | "gazette";
+  | "map";
 
 export type TroveSearchResult = {
   response: {
     query: string;
     zone: Array<{
       name: TroveZone;
-      records: Array<{
+      records: {
         s: string;
         n: number;
         total: number;
         next: string;
         nextStart: string;
         work: Array<TroveWork>;
-      }>;
+      };
     }>;
   };
 };
@@ -50,7 +48,7 @@ export type TroveWork = {
   holdingsCount?: number;
   versionCount?: number;
   relevance?: TroveRelevance;
-  snippet?: Array<String>;
+  snippet?: string | Array<String>;
   page?: number;
   pageSequence?: number;
   heading?: string;
