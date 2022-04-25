@@ -23,7 +23,17 @@ export default async function handler(
       params: {
         key: process.env.TROVE_API_KEY,
         q: query,
-        zone: zone ? zone : "all",
+        zone: zone
+          ? zone
+          : [
+              "article",
+              "book",
+              "picture",
+              "music",
+              "map",
+              "newspaper",
+              "gazette",
+            ],
         encoding: "json",
         include: "work,relevance,snippet",
         order: "relevance",

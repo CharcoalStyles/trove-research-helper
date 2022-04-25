@@ -1,11 +1,11 @@
 export type TroveZone =
+  | "article"
   | "book"
   | "picture"
   | "music"
   | "map"
   | "newspaper"
-  | "gazette"
-  | "all";
+  | "gazette";
 
 export type TroveSearchResult = {
   response: {
@@ -38,7 +38,12 @@ export type TroveWork = {
   id: string;
   url: string;
   troveUrl: string;
-  title: string;
+  title:
+    | string
+    | {
+        id: string;
+        value: string;
+      };
   contributor?: Array<string>;
   issued?: 2021;
   type?: Array<string>;
@@ -46,4 +51,14 @@ export type TroveWork = {
   versionCount?: number;
   relevance?: TroveRelevance;
   snippet?: Array<String>;
+  page?: number;
+  pageSequence?: number;
+  heading?: string;
+  category?: string;
+  identifier?: Array<{
+    type: "url";
+    linktype: "fulltext" | "thumbnail" | "restricted";
+    linktext?: string;
+    value: string;
+  }>;
 };
